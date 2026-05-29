@@ -7,8 +7,26 @@ import (
 )
 
 var ErrInvalidRequestMethod = errors.New("invalid request method")
+var ErrInvalidRequestPath = errors.New("invalid request path")
 
-func ParseRequest(data []byte) (string, error) {
+type Request struct {
+	Method Method
+	Path   string
+}
+
+type Method string
+
+const (
+	GET     Method = "GET"
+	POST    Method = "POST"
+	PUT     Method = "PUT"
+	DELETE  Method = "DELETE"
+	PATCH   Method = "PATCH"
+	HEAD    Method = "HEAD"
+	OPTIONS Method = "OPTIONS"
+)
+
+func ParseRequest(data []byte) (Request, error) {
 	request := string(data)
 
 	requestLine, _, _ := strings.Cut(request, "\r\n")
@@ -16,20 +34,39 @@ func ParseRequest(data []byte) (string, error) {
 	method, err := getRequestMethod(requestLine)
 
 	if err != nil {
-		return "", err
+		return Request{}, err
 	}
 
-	return method, nil
+	path, err := getRequestPath(requestLine)
+
+	if err != nil {
+		return Request{}, err
+	}
+
+	return Request{
+		Method: method,
+		Path:   path,
+	}, nil
 }
 
-func getRequestMethod(request string) (string, error) {
-	allowedMethods := []string{"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"}
+func getRequestMethod(request string) (Method, error) {
+	allowedMethods := []Method{GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS}
 
 	method, _, _ := strings.Cut(request, " ")
 
-	if !slices.Contains(allowedMethods, method) {
+	if !slices.Contains(allowedMethods, Method(method)) {
 		return "", ErrInvalidRequestMethod
 	}
 
-	return method, nil
+	return Method(method), nil
+}
+
+func getRequestPath(request string) (string, error) {
+	parts := strings.Split(request, " ")
+
+	if len(parts) < 2 {
+		return "", ErrInvalidRequestPath
+	}
+
+	return parts[1], nil
 }

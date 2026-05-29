@@ -13,7 +13,7 @@ func HandleConnection(c net.Conn) {
 	incomingData := make([]byte, 1024)
 	c.Read(incomingData)
 
-	method, err := parsers.ParseRequest(incomingData)
+	request, err := parsers.ParseRequest(incomingData)
 
 	if err != nil {
 		log.Printf("Error parsing request from %s: %v\n", c.RemoteAddr(), err)
@@ -25,9 +25,10 @@ func HandleConnection(c net.Conn) {
 		return
 	}
 
-	log.Printf("Received %s request from %s\n", method, c.RemoteAddr())
+	log.Printf("Received %s request from %s\n", request.Method, c.RemoteAddr())
 
 	c.Write([]byte("HTTP/1.1 200 OK\r\n"))
 	c.Write([]byte("Content-Type: text/plain\r\n\r\n"))
-	c.Write([]byte("Your request method was: " + method))
+	c.Write([]byte("Your request method was: " + string(request.Method)))
+	c.Write([]byte("\nYour request path was: " + request.Path))
 }
