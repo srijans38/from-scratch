@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/srijans38/from-scratch/http-server/cmd/internal/parsers"
+	"github.com/srijans38/from-scratch/http-server/internal/parsers"
 )
 
 func HandleConnection(c net.Conn) {

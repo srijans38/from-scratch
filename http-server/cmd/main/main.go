@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/srijans38/from-scratch/http-server/cmd/internal/helpers"
+	"github.com/srijans38/from-scratch/http-server/internal/helpers"
 )
 
 func main() {
