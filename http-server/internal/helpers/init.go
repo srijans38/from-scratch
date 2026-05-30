@@ -13,6 +13,8 @@ func HandleConnection(c net.Conn) {
 	incomingData := make([]byte, 1024)
 	c.Read(incomingData)
 
+	log.Printf("Raw request data from %s: %s\n", c.RemoteAddr(), string(incomingData))
+
 	request, err := parsers.ParseRequest(incomingData)
 
 	if err != nil {
@@ -31,4 +33,9 @@ func HandleConnection(c net.Conn) {
 	c.Write([]byte("Content-Type: text/plain\r\n\r\n"))
 	c.Write([]byte("Your request method was: " + string(request.Method)))
 	c.Write([]byte("\nYour request path was: " + request.Path))
+	c.Write([]byte("\nYour request had the following headers:\n"))
+
+	for _, header := range request.Headers {
+		c.Write([]byte(header.Key + ": " + header.Value + "\n"))
+	}
 }
